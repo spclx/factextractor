@@ -1,0 +1,4 @@
+natasha==1.5.0
+streamlit==1.17.0
+pandas
+altair<5
