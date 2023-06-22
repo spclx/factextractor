@@ -8,4 +8,6 @@ st.markdown("Скопируйте текст дневика в это поле �
 diary = st.text_area('Текст дневника')
 
 if st.button('Обработать'):
-    st.dataframe(d.analyze(diary))
+    df = d.analyze(diary)
+    st.dataframe(df[0])
+    st.write(df[1])

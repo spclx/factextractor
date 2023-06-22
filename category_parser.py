@@ -2,6 +2,7 @@ import json
 import os
 import preproc
 from collections import Counter, deque
+import numpy as np
 
 # Находит токен целевого слова по концу слова
 def find_need_word_by_lemma(tokens, word):
@@ -134,4 +135,8 @@ def get_mentioned_words(tokens, category):
     res = set(lemmas) & get_category_words(category)
     if res:
         return Counter([lemma for lemma in lemmas if lemma in res])
+    else:
+        return Counter()
 
+def get_most_mentioned_words(mentioned_words):
+    return mentioned_words.sum().most_common(3)
