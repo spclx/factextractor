@@ -27,6 +27,7 @@ def tokenizing(text):
     for sent in doc.sents:
         sent = Doc(sent.text)
         sent.segment(segmenter)
+        sent.parse_syntax(syntax_parser)
         sent.tag_morph(morph_tagger)
         for token in sent.tokens:
             token.lemmatize(morph_vocab)
@@ -34,5 +35,17 @@ def tokenizing(text):
     return tokens
 
 
+def get_all_lemmas(tokens):
+    return [token.lemma for sent in tokens for token in sent]
+
+
 def get_set_all_lemmas(tokens):
-    return set(token.lemma for sent in tokens for token in sent)
+    return set(get_all_lemmas(tokens))
+
+
+def get_set_sent_lemmas(sent_tokens):
+    return set([token.lemma for token in sent_tokens])
+
+
+def get_sent_tokens(sent_tokens):
+    return [token for token in sent_tokens]
