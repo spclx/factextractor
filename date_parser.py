@@ -337,6 +337,12 @@ def date_extractor_for_diary(text):
     
     return pd.DataFrame(res)
 
+def normalize_dates(start, stop):
+    if start == stop:
+        return start
+    else: 
+        return f'{start} - {stop}'
+
 ######## USAGE ###########
 
 # parser = Parser(DATE_RANGE)

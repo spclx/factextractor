@@ -1,7 +1,8 @@
 import json
 import os
-import preproc
+import preproc, date_parser
 from collections import Counter
+import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(__file__)
 
@@ -59,3 +60,10 @@ def get_most_sentiment(sentiment_index):
       sentiments.append('neutral')
   sentiments = Counter(sentiments)
   return sentiments.most_common(1)[0][0]
+
+def data_for_sentiment_chart(df):
+    df = df.copy()
+    df['n_date'] = df.apply(lambda row: 
+                                date_parser.normalize_dates(row.date_start, row.date_stop),
+                                axis=1)
+    return df[['n_date', 'sent_index']]
