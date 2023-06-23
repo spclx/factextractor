@@ -9,5 +9,4 @@ diary = st.text_area('Текст дневника')
 
 if st.button('Обработать'):
     df = d.analyze(diary)
-    st.dataframe(df[0])
-    st.write(df[1])
+    st.dataframe(df)

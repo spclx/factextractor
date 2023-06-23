@@ -1,6 +1,7 @@
 import date_parser as dp
 import preproc
 import category_parser as cp
+import sentiment_parser as sp
 
 
 # def get_gender(tokens):
@@ -17,7 +18,11 @@ def analyze(text):
     diary['tokens'] = diary['text'].apply(lambda text: preproc.tokenizing(text))
     
     # Выделение фактов из текста
-    diary['loc_facts'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
-    diary['loc_words'] = diary['tokens'].apply(lambda tokens: cp.get_mentioned_words(tokens, 'locations'))
+    # diary['loc_facts'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
+    # diary['loc_words'] = diary['tokens'].apply(lambda tokens: cp.get_mentioned_words(tokens, 'locations'))
 
-    return (diary, cp.get_most_mentioned_words(diary['loc_words']))
+    # Определение сентимента по записям
+    diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))
+    diary['sent_index'] = diary['sent'].apply(lambda sent: sp.get_sentiment_index(sent))
+
+    return diary
