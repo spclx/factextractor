@@ -1,7 +1,7 @@
 import streamlit as st
 import diary as d
 import sentiment_parser as sp
-import altair as alt
+# import altair as alt
 
 st.title('Автоматический аннотатор')
 
