@@ -14,11 +14,13 @@ if st.button('Быстрая обработка на тестовом текст
     df = d.analyze(diary)
     st.dataframe(df)
     for_chart = sp.data_for_sentiment_chart(df).set_index('n_date')
+    st.markdown('### График сентимента по записям дневника (тест)')
     st.line_chart(data=for_chart)
 
 if st.button('Обработать'):
     df = d.analyze(diary)
     st.dataframe(df)
     for_chart = sp.data_for_sentiment_chart(df).set_index('n_date')
+    st.markdown('### График сентимента по записям дневника (тест)')
     st.line_chart(data=for_chart)
 
