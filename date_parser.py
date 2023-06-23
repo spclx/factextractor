@@ -9,7 +9,7 @@ from yargy.predicates import (
     dictionary, normalized,
 )
 import pandas as pd
-
+import streamlit as st
 
 DateRange = fact(
     'DateRange',
@@ -309,7 +309,7 @@ DATE_RANGE = or_(
     DateRange
 )
 
-
+@st.experimental_memo
 def date_extractor_for_diary(text):
     res = {
         'date_start' : [],

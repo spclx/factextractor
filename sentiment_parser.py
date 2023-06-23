@@ -3,6 +3,7 @@ import os
 import preproc, date_parser
 from collections import Counter
 import pandas as pd
+import streamlit as st
 
 SCRIPT_DIR = os.path.dirname(__file__)
 
@@ -10,13 +11,17 @@ def sentiment_verbs():
     with open(f'{SCRIPT_DIR}/sentiment/verbs.json', 'r', encoding='utf-8') as file:
         return json.load(file)
 
+
 def sentiment_nouns():
     with open(f'{SCRIPT_DIR}/sentiment/emo_clean.json', 'r', encoding='utf-8') as file:
         return json.load(file)
 
+VERBS = sentiment_verbs()
+NOUNS = sentiment_nouns()
+
+
 def get_sentiment_from_verbs(lemmas):
     res = []
-    VERBS = sentiment_verbs()
     matching = set(lemmas) & set(VERBS.keys())
     lemmas_dict = Counter(lemmas)
     if matching:
@@ -26,10 +31,9 @@ def get_sentiment_from_verbs(lemmas):
                 res.extend(s)
         return Counter(res)
     else: return Counter()
-       
+   
 def get_sentiment_from_nouns(lemmas):
     res = []
-    NOUNS = sentiment_nouns()
     matching = set(lemmas) & set(NOUNS.keys())
     lemmas_dict = Counter(lemmas)
     if matching:
@@ -46,8 +50,10 @@ def get_overall_sentiment(tokens):
     nouns = get_sentiment_from_nouns(lemmas)
     return verbs + nouns
 
+
 def get_sentiment_index(sentiments):
   return sentiments['positive'] - sentiments['negative']
+
 
 def get_most_sentiment(sentiment_index):
   sentiments = []
@@ -61,6 +67,7 @@ def get_most_sentiment(sentiment_index):
   sentiments = Counter(sentiments)
   return sentiments.most_common(1)[0][0]
 
+@st.experimental_memo
 def data_for_sentiment_chart(df):
     df = df.copy()
     df['n_date'] = df.apply(lambda row: 

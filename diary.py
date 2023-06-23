@@ -2,11 +2,12 @@ import date_parser as dp
 import preproc
 import category_parser as cp
 import sentiment_parser as sp
-
+import streamlit as st
 
 # def get_gender(tokens):
 #     r = [token.feats['Gender'] for sent in tokenizing(text) for token in sent if (token.feats.get('Gender') and token.feats.get('Voice')) ]
 
+@st.experimental_memo
 def analyze(text):
     # Разделение текста на датированные куски
     diary = dp.date_extractor_for_diary(text)
