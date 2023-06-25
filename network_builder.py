@@ -1,5 +1,7 @@
 import networkx as nx
 from collections import Counter
+import word_transformations as wt
+
 
 def build_graph(df):
     G = nx.DiGraph()
@@ -41,10 +43,22 @@ def most_visited_places(G):
     return [i[0] for i in Counter(res).most_common(3)]
 
 
-def get_gender(tokens):
-    gender = []
-    for i in [token for sent in tokens for token in sent]:
-        for token in i:
-            if token.feats.get('Gender') and token.pos == 'VERB':
-                gender.append(token.feats.get('Gender'))
-    return Counter(gender).most_common(1)[0][0]
+def fact_to_annotation(fact, gender, most_mentioned_word):
+    '''
+    Отбор фактов в аннотацию
+
+    Пока работает, если глагол в нужном лице и роде.
+    '''
+    flag = False
+    for word in fact.split(' '):
+        for form in morph.parse(word):
+            # Если глагол прошедшего времени
+            if {gender, 'VERB'} in form.tag:
+                flag = True
+            # Если глагол от "первого лица"
+            if {'1per', 'sing', 'VERB'} in form.tag:
+                flag = True
+            if form.normal_form in most_mentioned_word:
+                return False
+    return flag
+
