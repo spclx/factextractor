@@ -126,7 +126,8 @@ def get_facts(tokens, category):
                 for word in find_need_word_by_lemma(sent_tokens, w):
                     fact = construct_fact(sent_tokens, word, category)
                     if fact: 
-                        facts.append(fact)
+                        # facts.append(fact)
+                       facts.append([w, fact]) 
     return facts
 
 

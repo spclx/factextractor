@@ -1,4 +1,8 @@
-natasha==1.5.0
+natasha
 streamlit==1.17.0
-pandas
+networkx==2.8.6
+numpy==1.23.3
+pandas==1.4.4
 altair<5
+pyvis==0.2.1
+pymorphy2
