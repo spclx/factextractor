@@ -67,7 +67,6 @@ def get_most_sentiment(sentiment_index):
   sentiments = Counter(sentiments)
   return sentiments.most_common(1)[0][0]
 
-@st.experimental_memo
 def data_for_sentiment_chart(df):
     df = df.copy()
     df['n_date'] = df.apply(lambda row: 

@@ -19,8 +19,7 @@ def analyze(text):
     diary['tokens'] = diary['text'].apply(lambda text: preproc.tokenizing(text))
     
     # # Выделение фактов из текста
-    diary['loc_facts'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
-    # diary['loc_words'] = diary['tokens'].apply(lambda tokens: cp.get_mentioned_words(tokens, 'locations'))
+    diary['locations'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
 
     # Определение сентимента по записям
     # diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))
