@@ -43,22 +43,31 @@ def most_visited_places(G):
     return [i[0] for i in Counter(res).most_common(3)]
 
 
-def fact_to_annotation(fact, gender, most_mentioned_word):
+def facts_for_annotation(G, gender, most_places):
     '''
-    Отбор фактов в аннотацию
-
-    Пока работает, если глагол в нужном лице и роде.
+    Собирает лист из фактов и его даты упоминания
     '''
-    flag = False
-    for word in fact.split(' '):
-        for form in morph.parse(word):
-            # Если глагол прошедшего времени
-            if {gender, 'VERB'} in form.tag:
-                flag = True
-            # Если глагол от "первого лица"
-            if {'1per', 'sing', 'VERB'} in form.tag:
-                flag = True
-            if form.normal_form in most_mentioned_word:
-                return False
-    return flag
+    res = Counter()
+    for key, value in G.nodes.data():
+            if value.get('group') == 'Category_word':
+                res[key] = len(G[key])
+    facts = [s for i in Counter(res).keys() for s in G.successors(i)]
+    
+    res = []
+    for fact in facts:
+        if wt.get_fact_to_annotation(fact, gender, most_places):
+                date = [i for i in G.predecessors(fact) if G.nodes()[i].get('group') == 'Date'][0]
+                res.append((date, fact))
+    return res
 
+
+def annotation(G, gender):
+    dates = dates_of_Diary_writing(G)
+    most_places = most_visited_places(G)
+    facts = facts_for_annotation(G, gender, most_places)
+
+    facts = ', '.join([f"{fact[1].lower()} ({fact[0]})" for fact in facts])
+
+    annotation = f'{wt.get_noun(gender).title()} этого дневника {wt.gender_transformer("вести", gender)} его с {dates[0]} по {dates[1]}. Наиболее часто {wt.get_pronoun(gender)} {wt.gender_transformer("описывал", gender)} {wt.inflector(most_places[0], "accs")}, {wt.inflector(most_places[1], "accs")} и {wt.inflector(most_places[2], "accs")}.\n\nВ дневнике упоминается, как {wt.get_noun(gender)} {facts}.'
+
+    return annotation

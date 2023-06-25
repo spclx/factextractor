@@ -4,24 +4,39 @@ import sentiment_parser as sp
 import network_builder as nb
 from pyvis.network import Network
 import streamlit.components.v1 as components
-# import altair as alt
+import word_transformations as wt
 
 st.title('Автоматический аннотатор')
 
-st.markdown("Скопируйте текст дневика в это поле или выберите для теста один из подготовленных отрывков.")
+# st.markdown("Скопируйте текст дневика в это поле или выберите для теста один из подготовленных отрывков.")
+
+txt = st.text_area('Скопируйте текст дневика в это поле', height=100)
+
+option = st.selectbox(
+    'Или выберите один из тестовых текстов дневников:',
+    ('Выбрать...', 'Анатолий Василивицкий', 'Мария Германова'))
+
+if option == 'Анатолий Василивицкий':
+    with open('test_1.txt', 'r') as f:
+        txt = f.read()
+elif option == 'Мария Германова':
+    with open('test.txt', 'r') as f:
+        txt = f.read()
 
 
-with open('test.txt', 'r') as f:
-    TEST = f.read()
 # diary = st.text_area('Текст дневника')
-if st.button('Быстрая обработка на тестовом тексте '):
-    df = d.analyze(TEST)
+if st.button('Обработать') and txt != '':
+    df = d.analyze(txt)
     # st.dataframe(df)
     # for_chart = sp.data_for_sentiment_chart(df).set_index('n_date')
     # st.markdown('### График сентимента по записям дневника (тест)')
     # st.line_chart(data=for_chart)
     # st.experimental_memo.clear()
     graph = nb.build_graph(df)
+
+    GENDER = wt.get_gender(df['tokens'])
+
+    st.markdown(f'**Аннотация этого дневника:** {nb.annotation(graph, GENDER)}')
 
     textnet = Network( height='400px',
                        width='100%',

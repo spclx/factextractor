@@ -53,4 +53,35 @@ def gender_transformer(verb, gender):
             return w.word
 
 
+def get_pronoun(gender):
+    if gender == 'Fem': return 'она'
+    else: return 'он'
 
+
+def get_noun(gender):
+    if gender == 'Fem': return 'авторка'
+    else: return 'автор'
+
+
+def get_fact_to_annotation(fact, gender, most_mentioned_word):
+    '''
+    Проверяет, нужно ли взять факт в аннотацию
+
+    Пока работает, если глагол в нужном лице и роде и не упоминается распространённое место.
+    '''
+    if gender == 'Fem' : gender = 'femn'
+    else: gender = 'masc'
+    flag = False
+    for word in fact.split(' '):
+        for form in morph.parse(word):
+            # Если глагол прошедшего времени
+            if {gender, 'VERB'} in form.tag:
+                flag = True
+            # Если глагол от "первого лица"
+            if {'1per', 'sing', 'VERB'} in form.tag:
+                flag = True
+            if form.normal_form in most_mentioned_word:
+                return False
+            if form.normal_form in ['она', 'он']:
+                return False
+    return flag
