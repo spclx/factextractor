@@ -115,6 +115,19 @@ def get_category_words(category):
     return set(open(f'{SCRIPT_DIR}/{category}/words.txt', encoding='utf8').read().split('\n'))
 
 
+def get_morfology_from_fact(fact, sent_tokens):
+    '''
+    Вычленяет часть речи и морфологические свойства слова из факта
+    '''
+    res = []
+    for word in fact.split(' '):
+        for token in sent_tokens:
+            if word == token.text:
+                res.append([token.pos, token.feats])
+                break
+    return res
+
+
 def get_facts(tokens, category):
     facts = []
     for sent in tokens:
@@ -127,7 +140,9 @@ def get_facts(tokens, category):
                     fact = construct_fact(sent_tokens, word, category)
                     if fact: 
                         # facts.append(fact)
-                       facts.append([w, fact]) 
+                        morthology = get_morfology_from_fact(fact, sent_tokens)
+                        # facts.append([w, fact]) 
+                        facts.append([w, fact, morthology]) 
     return facts
 
 

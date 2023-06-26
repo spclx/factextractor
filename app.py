@@ -10,10 +10,10 @@ st.title('Автоматический аннотатор')
 
 # st.markdown("Скопируйте текст дневика в это поле или выберите для теста один из подготовленных отрывков.")
 
-txt = st.text_area('Скопируйте текст дневика в это поле', height=100)
+txt = st.text_area('Скопируйте текст дневника в это поле', height=100)
 
 option = st.selectbox(
-    'Или выберите один из тестовых текстов дневников:',
+    'Или выберите один из пробных текстов дневников:',
     ('Выбрать...', 'Анатолий Василивицкий', 'Мария Германова'))
 
 if option == 'Анатолий Василивицкий':
@@ -35,8 +35,9 @@ if st.button('Обработать') and txt != '':
     graph = nb.build_graph(df)
 
     GENDER = wt.get_gender(df['tokens'])
+    locations = df['locations']
 
-    st.markdown(f'**Аннотация этого дневника:** {nb.annotation(graph, GENDER)}')
+    st.markdown(f'**Аннотация этого дневника:** {nb.annotation(graph, GENDER, locations)}')
 
     textnet = Network( height='400px',
                        width='100%',

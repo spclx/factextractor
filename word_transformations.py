@@ -85,3 +85,25 @@ def get_fact_to_annotation(fact, gender, most_mentioned_word):
             if form.normal_form in ['она', 'он']:
                 return False
     return flag
+
+def transform_fact(tokens, fact, gender):
+    '''
+    Если факт написан в первом лице, то трансформирует его в третье лицо.
+    На вход поступает столбец с записями фактов — там есть токены
+    '''
+    facts = [(fact_string[1], fact_string[2]) for entry in tokens for fact_string in entry]
+    for f in facts:
+        if f[0] == fact:
+            fact = fact.split(' ')
+            delete_index = None
+            for i in range(0, len(fact)):
+                # глагол в первом лице
+                if (f[1][i][0] == 'VERB') and (f[1][i][1].get('Person') == '1'):
+                    replaced_verb = gender_transformer(fact[i], gender)
+                    del fact[i]
+                    fact.insert(i, replaced_verb)
+                if fact[i].lower() == 'я':
+                    delete_index = i
+            if delete_index != None:
+                del fact[delete_index]
+    return ' '.join(fact)

@@ -23,7 +23,8 @@ def analyze(text):
     diary['locations'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
 
     # Определение сентимента по записям
-    # diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))
-    # diary['sent_index'] = diary['sent'].apply(lambda sent: sp.get_sentiment_index(sent))
+    diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))
+    diary['sent_index'] = diary['sent'].apply(lambda sent: sp.get_sentiment_index(sent))
 
+    
     return diary

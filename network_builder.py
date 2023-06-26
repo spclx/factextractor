@@ -1,6 +1,8 @@
 import networkx as nx
 from collections import Counter
 import word_transformations as wt
+import sentiment_parser as sp
+# import app
 
 
 def build_graph(df):
@@ -20,6 +22,10 @@ def build_graph(df):
             G.add_edge(row['date_start'], fact[1])
             G.add_edge(fact[0], fact[1])
 
+    # Добавление связей даты записи с сентиментом
+    for index, row in df[['date_start', 'sent_index']].iterrows():
+        G.add_node(sp.get_most_sentiment([row['sent_index']]), group="Sentiment", color = "pink")
+        G.add_edge(row['date_start'], sp.get_most_sentiment([row['sent_index']]))
     return G
 
 
@@ -60,14 +66,51 @@ def facts_for_annotation(G, gender, most_places):
                 res.append((date, fact))
     return res
 
+def sentiment_of_date(G):
+    sentiment = dict()
+    sentiment['positive'] = [date for date in G.predecessors('positive')]
+    sentiment['negative'] = [date for date in G.predecessors('negative')]
+    return sentiment
 
-def annotation(G, gender):
+
+def constuct_fact_for_annotation(facts, sentiment, gender, locations):
+    '''
+    Собирает из отобранных фактов текст для аннотации.
+    '''
+    prompts = [f'В записях с преимущественно положительной тональностью {wt.get_noun(gender)} {wt.gender_transformer("писал", gender)} как {wt.get_pronoun(gender)}',
+               f'Также в дневнике описывается, как {wt.get_pronoun(gender)}']
+    
+
+    positive_facts = []
+    negative_facts = []
+    if sentiment['positive']:
+        for date in sentiment['positive']:
+            for fact in facts:
+                if date == fact[0]:
+                    positive_facts.append(f"{wt.transform_fact(locations, fact[1], gender).lower()} ({fact[0]})")
+    if sentiment['negative']:
+    # elif sentiment['negative']:
+        for date in sentiment['negative']:
+            for fact in facts:
+                print(fact[1])
+                if date == fact[0]:
+                    negative_facts.append(f"{wt.transform_fact(locations, fact[1], gender).lower()} ({fact[0]})")
+    text = ''
+    if positive_facts:
+        text += f'{prompts[0]} {", ".join(positive_facts)}.'
+    if negative_facts:
+        text += f'\n\n{prompts[1]} {", ".join(negative_facts)}.'
+    return text
+
+def annotation(G, gender, locations):
     dates = dates_of_Diary_writing(G)
     most_places = most_visited_places(G)
     facts = facts_for_annotation(G, gender, most_places)
+    sentiment = sentiment_of_date(G)
 
-    facts = ', '.join([f"{fact[1].lower()} ({fact[0]})" for fact in facts])
+    # facts = ', '.join([f"{fact[1].lower()} ({fact[0]})" for fact in facts])
+    # facts = ''
 
-    annotation = f'{wt.get_noun(gender).title()} этого дневника {wt.gender_transformer("вести", gender)} его с {dates[0]} по {dates[1]}. Наиболее часто {wt.get_pronoun(gender)} {wt.gender_transformer("описывал", gender)} {wt.inflector(most_places[0], "accs")}, {wt.inflector(most_places[1], "accs")} и {wt.inflector(most_places[2], "accs")}.\n\nВ дневнике упоминается, как {wt.get_noun(gender)} {facts}.'
+    annotation = f'{wt.get_noun(gender).title()} этого дневника {wt.gender_transformer("вести", gender)} его с {dates[0]} по {dates[1]}. Наиболее часто {wt.get_pronoun(gender)} {wt.gender_transformer("описывал", gender)} {wt.inflector(most_places[0], "accs")}, {wt.inflector(most_places[1], "accs")} и {wt.inflector(most_places[2], "accs")}.\n\n{constuct_fact_for_annotation(facts, sentiment, gender, locations)}'
 
     return annotation
