@@ -309,33 +309,40 @@ DATE_RANGE = or_(
     DateRange
 )
 
-@st.experimental_memo
 def date_extractor_for_diary(text):
-    res = {
-        'date_start' : [],
-        'date_stop' : [],
-        'text' : []
-    }
-    entry = ''
-    for paragraph in text.split('\n'):
-        parser = Parser(DATE_RANGE)
-        for match in parser.findall(paragraph):
-            record = match.fact.normalized
-            if record.spans[0].start in range (0, 3):
-                start = record.get_start_date
-                stop = record.get_stop_date
-                res['date_start'].append(start)
-                res['date_stop'].append(stop)
-                if entry != '':
-                    res['text'].append(entry)
-                    entry = ''
-                break
-        entry += paragraph
-        entry += '\n'
-    if entry != '':
-        res['text'].append(entry)
     
-    return pd.DataFrame(res)
+    res = {
+            'date_start' : [],
+            'date_stop' : [],
+            'text' : []
+        }
+    try:
+        entry = ''
+        for paragraph in text.split('\n'):
+            parser = Parser(DATE_RANGE)
+            for match in parser.findall(paragraph):
+                record = match.fact.normalized
+                if record.spans[0].start in range (0, 3):
+                    start = record.get_start_date
+                    stop = record.get_stop_date
+                    if entry != '':
+                        res['text'].append(entry)
+                        entry = ''
+                    res['date_start'].append(start)
+                    res['date_stop'].append(stop)
+                    # if entry != '':
+                    #     res['text'].append(entry)
+                    #     entry = ''
+                    break
+            entry += paragraph
+            entry += '\n'
+        if entry != '':
+            res['text'].append(entry)
+        
+        df = pd.DataFrame(res)
+        return df.drop(df.loc[df['text'].str.len() < 10].index)        
+    except:
+        return pd.DataFrame(res)
 
 def normalize_dates(start, stop):
     if start == stop:

@@ -26,51 +26,48 @@ elif option == 'Мария Германова':
 
 # diary = st.text_area('Текст дневника')
 if st.button('Обработать') and txt != '':
-    df = d.analyze(txt)
-    # st.dataframe(df)
-    # for_chart = sp.data_for_sentiment_chart(df).set_index('n_date')
-    # st.markdown('### График сентимента по записям дневника (тест)')
-    # st.line_chart(data=for_chart)
-    # st.experimental_memo.clear()
-    graph = nb.build_graph(df)
 
-    GENDER = wt.get_gender(df['tokens'])
-    locations = df['locations']
-
-    st.markdown(f'**Аннотация этого дневника:** {nb.annotation(graph, GENDER, locations)}')
-
-    textnet = Network( height='400px',
-                       width='100%',
-                       bgcolor='white',
-                       font_color='black'
-                      )
-    
-    textnet.from_nx(graph)
-
-    textnet.repulsion(
-                        node_distance=420,
-                        central_gravity=0.33,
-                        spring_length=110,
-                        spring_strength=0.10,
-                        damping=0.95
-                       )
-    
     try:
-        path = '/tmp'
-        textnet.save_graph(f'{path}/pyvis_graph.html')
-        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+        df = d.analyze(txt)
+        graph = nb.build_graph(df)
 
+        GENDER = wt.get_gender(df['tokens'])
+        locations = df['locations']
+
+        st.markdown(f'**Аннотация этого дневника:** {nb.annotation(graph, GENDER, locations)}')
+
+        textnet = Network( height='400px',
+                        width='100%',
+                        bgcolor='white',
+                        font_color='black'
+                        )
+        
+        textnet.from_nx(graph)
+
+        textnet.repulsion(
+                            node_distance=420,
+                            central_gravity=0.33,
+                            spring_length=110,
+                            spring_strength=0.10,
+                            damping=0.95
+                        )
+        
+        try:
+            path = '/tmp'
+            textnet.save_graph(f'{path}/pyvis_graph.html')
+            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+        except:
+            path = '/html_files'
+            textnet.save_graph(f'{path}/pyvis_graph.html')
+            HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+
+        st.markdown('### «Граф знания» этого дневника')
+        st.caption(':blue[Синим цветом] выделены узлы, связанные с одной датированной дневниковой записью, розовым — общий сентимент записи, :red[красным] — найденное утверждение, :green[зелёным] — места и локации, фиолетовым — занятия.')
+        st.caption('Чтобы увеличить граф и посмотреть лейблы узлов, установите курсор в нужном месте и проскорольте вниз.')
+        components.html(HtmlFile.read(), height=435)
     except:
-        path = '/html_files'
-        textnet.save_graph(f'{path}/pyvis_graph.html')
-        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
+        st.warning('Вставьте текст дневника, который начинается с даты!', icon="⚠️")
 
-    components.html(HtmlFile.read(), height=435)
 
-# if st.button('Обработать'):
-#     df = d.analyze(diary)
-#     st.dataframe(df)
-#     for_chart = sp.data_for_sentiment_chart(df).set_index('n_date')
-#     st.markdown('### График сентимента по записям дневника (тест)')
-#     st.line_chart(data=for_chart)
 

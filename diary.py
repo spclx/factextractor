@@ -12,7 +12,7 @@ import word_transformations as wt
 def analyze(text):
     # Разделение текста на датированные куски
     diary = dp.date_extractor_for_diary(text)
-
+    
     # Очистка текста дневника
     diary = preproc.text_preproc(diary)
 
@@ -26,5 +26,4 @@ def analyze(text):
     diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))
     diary['sent_index'] = diary['sent'].apply(lambda sent: sp.get_sentiment_index(sent))
 
-    
     return diary

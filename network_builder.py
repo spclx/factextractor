@@ -70,6 +70,7 @@ def sentiment_of_date(G):
     sentiment = dict()
     sentiment['positive'] = [date for date in G.predecessors('positive')]
     sentiment['negative'] = [date for date in G.predecessors('negative')]
+    sentiment['neutral'] = [date for date in G.predecessors('neutral')]
     return sentiment
 
 
@@ -89,8 +90,13 @@ def constuct_fact_for_annotation(facts, sentiment, gender, locations):
                 if date == fact[0]:
                     positive_facts.append(f"{wt.transform_fact(locations, fact[1], gender).lower()} ({fact[0]})")
     if sentiment['negative']:
-    # elif sentiment['negative']:
         for date in sentiment['negative']:
+            for fact in facts:
+                print(fact[1])
+                if date == fact[0]:
+                    negative_facts.append(f"{wt.transform_fact(locations, fact[1], gender).lower()} ({fact[0]})")
+    if sentiment['neutral']:
+        for date in sentiment['neutral']:
             for fact in facts:
                 print(fact[1])
                 if date == fact[0]:
