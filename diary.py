@@ -21,6 +21,7 @@ def analyze(text):
     
     # # Выделение фактов из текста
     diary['locations'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'locations'))
+    diary['activities'] = diary['tokens'].apply(lambda tokens: cp.get_facts(tokens, 'activities'))
 
     # Определение сентимента по записям
     diary['sent'] = diary['tokens'].apply(lambda tokens: sp.get_overall_sentiment(tokens))

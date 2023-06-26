@@ -17,10 +17,17 @@ def build_graph(df):
     # Добавление связей дат и фактов, фактов и слов
     for index, row in df[['date_start', 'locations']].iterrows():
         for fact in row['locations']:
-            G.add_node(fact[0], group="Category_word", color = "green")
+            G.add_node(fact[0], group="Location", color = "green")
             G.add_node(fact[1], group="Fact", color = "red")
             G.add_edge(row['date_start'], fact[1])
             G.add_edge(fact[0], fact[1])
+
+    for index, row in df[['date_start', 'activities']].iterrows():
+        for fact in row['activities']:
+            G.add_node(fact[0], group="Activity", color = "purple")
+            # G.add_node(fact[1], group="Fact", color = "red")
+            G.add_edge(row['date_start'], fact[0])
+            # G.add_edge(fact[0], fact[1])
 
     # Добавление связей даты записи с сентиментом
     for index, row in df[['date_start', 'sent_index']].iterrows():
@@ -44,9 +51,16 @@ def dates_of_Diary_writing(G):
 def most_visited_places(G):
     res = Counter()
     for key, value in G.nodes.data():
-        if value.get('group') == 'Category_word':
+        if value.get('group') == 'Location':
             res[key] = len(G[key])
     return [i[0] for i in Counter(res).most_common(3)]
+
+def most_activity(G):
+    res = Counter()
+    for key, value in G.nodes.data():
+        if value.get('group') == 'Activity':
+            res[key] = len(G[key])
+    return [i[0] for i in Counter(res).most_common(1)]
 
 
 def facts_for_annotation(G, gender, most_places):
@@ -55,7 +69,7 @@ def facts_for_annotation(G, gender, most_places):
     '''
     res = Counter()
     for key, value in G.nodes.data():
-            if value.get('group') == 'Category_word':
+            if value.get('group') == 'Location':
                 res[key] = len(G[key])
     facts = [s for i in Counter(res).keys() for s in G.successors(i)]
     
@@ -113,10 +127,15 @@ def annotation(G, gender, locations):
     most_places = most_visited_places(G)
     facts = facts_for_annotation(G, gender, most_places)
     sentiment = sentiment_of_date(G)
+    activities = most_activity(G)
 
     # facts = ', '.join([f"{fact[1].lower()} ({fact[0]})" for fact in facts])
     # facts = ''
+    if activities:
+        act = f'В дневнике также упоминаниется игра в {activities[0]}.'
+    else:
+        act = ''
 
-    annotation = f'{wt.get_noun(gender).title()} этого дневника {wt.gender_transformer("вести", gender)} его с {dates[0]} по {dates[1]}. Наиболее часто {wt.get_pronoun(gender)} {wt.gender_transformer("описывал", gender)} {wt.inflector(most_places[0], "accs")}, {wt.inflector(most_places[1], "accs")} и {wt.inflector(most_places[2], "accs")}.\n\n{constuct_fact_for_annotation(facts, sentiment, gender, locations)}'
+    annotation = f'{wt.get_noun(gender).title()} этого дневника {wt.gender_transformer("вести", gender)} его с {dates[0]} по {dates[1]}. Наиболее часто {wt.get_pronoun(gender)} {wt.gender_transformer("описывал", gender)} {wt.inflector(most_places[0], "accs")}, {wt.inflector(most_places[1], "accs")} и {wt.inflector(most_places[2], "accs")}. {act}\n\n{constuct_fact_for_annotation(facts, sentiment, gender, locations)}'
 
     return annotation
